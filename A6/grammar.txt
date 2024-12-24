@@ -1,0 +1,10 @@
+LIST -> STMT | STMT LIST
+STMT -> ASGN | COND | LOOP
+ASGN -> ( set IDEN ATOM )
+COND -> ( when ( BOOL ) LIST )
+LOOP -> ( while ( BOOL ) LIST )
+EXPR -> ( OPER ATOM ATOM )
+BOOL -> ATOM RELN ATOM
+ATOM -> IDEN | NUMB | EXPR
+OPER -> + | - | * | / | %
+RELN -> = | /= | < | > | <= | >=

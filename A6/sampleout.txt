@@ -1,0 +1,143 @@
+yacc -d prog.y
+lex prog.l
+gcc -o codegen codegen.c
+./codegen < sample.txt
+
++++ Parsing successful
+
+========================================
++++ Blocks in three-address code
+
+Block 1
+   1	: B = 10000
+   2	: a = 1
+   3	: n = 0
+
+Block 2
+   4	: iffalse (a <= B) goto 28
+
+Block 3
+   5	: $1 = a + 1
+   6	: b = $1
+
+Block 4
+   7	: iffalse (b <= B) goto 27
+
+Block 5
+   8	: $2 = a * a
+   9	: $3 = b * b
+   10	: $4 = $2 + $3
+   11	: $5 = a * b
+   12	: $6 = $5 - 1
+   13	: $7 = $4 / $6
+   14	: r = $7
+   15	: $8 = a * b
+   16	: $9 = $8 - 1
+   17	: $10 = r * $9
+   18	: t1 = $10
+   19	: $11 = a * a
+   20	: $12 = b * b
+   21	: $13 = $11 + $12
+   22	: t2 = $13
+   23	: iffalse (t1 == t2) goto 26
+
+Block 6
+   24	: $14 = n + 1
+   25	: n = $14
+
+Block 7
+   26	: goto 7
+
+Block 8
+   27	: goto 4
+
+Block 9
+   28	: p = 1
+
+Block 10
+   29	: iffalse (n > 1) goto 35
+
+Block 11
+   30	: $15 = p * n
+   31	: p = $15
+   32	: $16 = n - 1
+   33	: n = $16
+   34	: goto 29
+
+   35	:
+
+========================================
++++ Target code
+
+Block 1
+   1	: LDI R1 10000
+   2	: LDI R2 1
+   3	: LDI R3 0
+   4	: ST B R1
+   5	: ST a R2
+   6	: ST n R3
+
+Block 2
+   7	: LD R1 a
+   8	: LD R2 B
+   9	: JGT R1 R2 39
+
+Block 3
+   10	: LD R1 a
+   11	: ADD R2 R1 1
+   12	: ST b R2
+
+Block 4
+   13	: LD R1 b
+   14	: LD R2 B
+   15	: JGT R1 R2 38
+
+Block 5
+   16	: LD R1 a
+   17	: MUL R2 R1 R1
+   18	: LD R3 b
+   19	: MUL R4 R3 R3
+   20	: ADD R5 R2 R4
+   21	: MUL R2 R1 R3
+   22	: SUB R4 R2 1
+   23	: DIV R2 R5 R4
+   24	: MUL R4 R1 R3
+   25	: SUB R5 R4 1
+   26	: MUL R4 R2 R5
+   27	: MUL R5 R1 R1
+   28	: MUL R1 R3 R3
+   29	: ADD R3 R5 R1
+   30	: ST r R2
+   31	: ST t1 R4
+   32	: ST t2 R3
+   33	: JNE R4 R3 37
+
+Block 6
+   34	: LD R1 n
+   35	: ADD R2 R1 1
+   36	: ST n R2
+
+Block 7
+   37	: JMP 13
+
+Block 8
+   38	: JMP 7
+
+Block 9
+   39	: LDI R1 1
+   40	: ST p R1
+
+Block 10
+   41	: LD R1 n
+   42	: JLE R1 1 50
+
+Block 11
+   43	: LD R1 p
+   44	: LD R2 n
+   45	: MUL R3 R1 R2
+   46	: SUB R4 R2 1
+   47	: ST p R3
+   48	: ST n R4
+   49	: JMP 41
+
+   50	:
